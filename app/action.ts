@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { FormState } from "./auth/signup/page";
+import { user } from "@/lib/mock/user";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -15,6 +16,11 @@ const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
+
+const checkUser = (email: string, password: string) => {
+  if (email === user.email && password === user.password) return true;
+  return false;
+};
 
 export async function CreateUser(prevState: FormState, formData: FormData) {
   const validationFields = schema.safeParse({
@@ -72,14 +78,20 @@ export async function LoginUser(prevState: FormState, formData: FormData) {
   const { email, password } = validationFields.data;
 
   try {
-    console.log("email", email);
-    console.log("password", password);
-
-    return {
-      errors: {},
-      success: true,
-      message: "Logged successfully!",
-    } as FormState;
+    const check = checkUser(email, password);
+    if (check) {
+      return {
+        errors: {},
+        success: true,
+        message: "Logged successfully!",
+      } as FormState;
+    } else {
+      return {
+        errors: { general: ["Invalid email or password."] },
+        success: false,
+        message: undefined,
+      } as FormState;
+    }
   } catch (error) {
     return {
       errors: { general: ["Failed to create user. Please try again."] },
