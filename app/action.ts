@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { FormState } from "./auth/signup/page";
 import { user } from "@/lib/mock/user";
+import { CreateSession } from "@/lib/session";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -80,6 +81,7 @@ export async function LoginUser(prevState: FormState, formData: FormData) {
   try {
     const check = checkUser(email, password);
     if (check) {
+      await CreateSession(email);
       return {
         errors: {},
         success: true,
